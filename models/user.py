@@ -6,6 +6,7 @@ fake = Faker("Ru-ru")
 
 
 class RegistrData:
+
     def __init__(self, name=None, lastname=None, email=None, password=None, telephone=None):
         self.name = name
         self.lastname = lastname

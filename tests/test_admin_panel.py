@@ -1,11 +1,11 @@
-from pages.admin_panel_page import AdminPanelPage
+from pages.admin.admin_panel_page import AdminPanelPage
+from pages.admin.admin_products_page import AdminProductPage
 
 
 class TestAdminPage:
 
     def test_auth_admin(self, browser):
-        browser.get(browser.base_url + "/admin/")
-        browser.find_element(*AdminPanelPage.USER_NAME).send_keys("user")
-        browser.find_element(*AdminPanelPage.PASSVORD).send_keys("bitnami")
-        browser.find_element(*AdminPanelPage.LOG_IN).click()
-        assert browser.find_element(*AdminPanelPage.LOGIN_OK).text == "Dashboard"
+        admin_panel = AdminPanelPage(browser)
+        admin_panel.get_url_admin()
+        admin_panel.log_in()
+        assert admin_panel._find_element(admin_panel.LOGIN_OK).text == "Dashboard"

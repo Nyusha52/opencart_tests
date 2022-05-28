@@ -4,9 +4,13 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
+from models.product import ProductData
 from models.user import RegistrData
-from pages.admin_panel_page import AdminPanelPage
-from pages.app import Application
+from pages.admin.add_product_page import AddProductPage
+from pages.admin.admin_panel_page import AdminPanelPage
+from pages.admin.admin_products_page import AdminProductPage
+from pages.application import Application
+from pages.elements.alerts import AlertsMessages
 from pages.main_page import MainPage
 from pages.register_account_page import RegisterAccountPage
 
@@ -45,33 +49,39 @@ def browser(request):
 
 @pytest.fixture
 def new_user(browser):
-    browser.get(browser.base_url)
-    browser.find_element(*MainPage.MY_ACCOUNT).click()
-    browser.find_element(*MainPage.REGISTER).click()
+    register_account = RegisterAccountPage(browser)
+    main_page = MainPage(browser)
+    admin_panel = AdminPanelPage(browser)
+    alert_delete = AlertsMessages(browser)
+    main_page.get_url("/")
+    main_page.find_user()
     new_person = RegistrData.random()
-    browser.find_element(*RegisterAccountPage.FIRSTNAME).send_keys(new_person.name)
-    browser.find_element(*RegisterAccountPage.LASTNAME).send_keys(new_person.lastname)
-    browser.find_element(*RegisterAccountPage.EMAIL).send_keys(new_person.email)
-    browser.find_element(*RegisterAccountPage.TELEPHONE).send_keys("Имqяййц")
-    browser.find_element(*RegisterAccountPage.PASSWORD).send_keys(new_person.password)
-    browser.find_element(*RegisterAccountPage.PASSWORD_CONFIRM).send_keys(new_person.password)
-    browser.find_element(*RegisterAccountPage.BOX_AGREE).click()
-    browser.find_element(*RegisterAccountPage.CONTINUE).click()
-    assert browser.find_element(*RegisterAccountPage.GOOD_REGISTER).text == "Your Account Has Been Created!"
+    register_account.fill_fields(new_person)
     fixture = Application(
         driver=browser,
         data=new_person
     )
     yield fixture
-    browser.get(browser.base_url + "/admin/")
-    browser.find_element(*AdminPanelPage.USER_NAME).send_keys("user")
-    browser.find_element(*AdminPanelPage.PASSVORD).send_keys("bitnami")
-    browser.find_element(*AdminPanelPage.LOG_IN).click()
-    browser.find_element(*AdminPanelPage.CUSTOMERS).click()
-    browser.find_element(*AdminPanelPage.CUSTOMERS_1).click()
-    browser.find_element(AdminPanelPage.BOX[0],
-                         AdminPanelPage.BOX[1].format(f"{new_person.name} {new_person.lastname}")).click()
-    browser.find_element(*AdminPanelPage.DELETE).click()
-    alert = browser.switch_to.alert
-    alert.accept()
-    assert browser.find_element(*AdminPanelPage.DELETE_OK).text == "Success: You have modified customers!\n×"
+    main_page.get_url("/admin/")
+    admin_panel.log_in()
+    admin_panel.delete_user(new_person)
+    alert_delete.alert_window()
+    admin_panel.assert_delete_user()
+
+
+@pytest.fixture
+def add_product(browser):
+    admin_panel = AdminPanelPage(browser)
+    add_product = AddProductPage(browser)
+    data = ProductData.random()
+    product = AdminProductPage(browser)
+    admin_panel.get_url_admin()
+    admin_panel.log_in()
+    admin_panel.open_product_page()
+    product.add_new_product()
+    add_product.required_fields_general_tab(data)
+    add_product.required_fields_data_tab(data)
+    add_product.safe()
+    product.filter_name(data)
+    assert data.name in product.assert_product()
+    return browser, data
