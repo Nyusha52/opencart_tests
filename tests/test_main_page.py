@@ -1,18 +1,24 @@
-import random
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+from pages.elements.alerts import AlertsMessages
+from pages.elements.header import HeaderElement
 from pages.main_page import MainPage
 
 
 class TestMainPage:
+
     def test_add_to_card(self, browser):
-        browser.get(browser.base_url)
-        assert browser.find_element(*MainPage.CART_BUTTON).text == "0 item(s) - $0.00"
-        goods = browser.find_elements(*MainPage.ADD_CART)
-        assert len(goods) == 4
-        goods[random.randint(0, 1)].click()
-        wait = WebDriverWait(browser, 10, poll_frequency=1)
-        message = wait.until(EC.visibility_of_element_located(MainPage.ADD_CART_MESSAGE))
-        assert "Success: You have added" in message.text
-        assert "1 item(s)" in browser.find_element(*MainPage.CART_BUTTON).text
+        main = MainPage(browser)
+        alert_message = AlertsMessages(browser)
+        header = HeaderElement(browser)
+        main.get_url("/")
+        assert header.assert_text_card == "0 item(s) - $0.00"
+        main.click_good()
+        assert "Success: You have added" in alert_message.message_add_card
+        assert "1 item(s)" in header.assert_text_card
+
+    def test_change_currency(self, browser):
+        main = MainPage(browser)
+        main.get_url("/")
+        main.change_currency()
+        texts = main.assert_change_currency()
+        for i in texts:
+            assert "£" in i.text

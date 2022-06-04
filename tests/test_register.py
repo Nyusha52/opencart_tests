@@ -1,71 +1,60 @@
+
 import pytest
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from models.user import RegistrData
-from pages.admin_panel_page import AdminPanelPage
+from pages.admin.admin_panel_page import AdminPanelPage
+from pages.elements.alerts import AlertsMessages
 from pages.main_page import MainPage
 from pages.register_account_page import RegisterAccountPage
 
 
 class TestRegistrPozitive:
-    def test_register(self, browser):
-        data = RegistrData.random()
-        browser.get(browser.base_url)
-        browser.find_element(*MainPage.MY_ACCOUNT).click()
-        browser.find_element(*MainPage.REGISTER).click()
-        browser.find_element(*RegisterAccountPage.FIRSTNAME).send_keys(data.name)
-        browser.find_element(*RegisterAccountPage.LASTNAME).send_keys(data.lastname)
-        browser.find_element(*RegisterAccountPage.EMAIL).send_keys(data.email)
-        browser.find_element(*RegisterAccountPage.TELEPHONE).send_keys(data.telephone)
-        browser.find_element(*RegisterAccountPage.PASSWORD).send_keys(data.password)
-        browser.find_element(*RegisterAccountPage.PASSWORD_CONFIRM).send_keys(data.password)
-        browser.find_element(*RegisterAccountPage.BOX_AGREE).click()
-        browser.find_element(*RegisterAccountPage.CONTINUE).click()
-        assert browser.find_element(*RegisterAccountPage.GOOD_REGISTER).text == "Your Account Has Been Created!"
-        browser.get(browser.base_url + "/admin/")
-        browser.find_element(*AdminPanelPage.USER_NAME).send_keys("user")
-        browser.find_element(*AdminPanelPage.PASSVORD).send_keys("bitnami")
-        browser.find_element(*AdminPanelPage.LOG_IN).click()
-        browser.find_element(*AdminPanelPage.CUSTOMERS).click()
-        browser.find_element(*AdminPanelPage.CUSTOMERS_1).click()
-        browser.find_element(AdminPanelPage.BOX[0],
-                             AdminPanelPage.BOX[1].format(f"{data.name} {data.lastname}")).click()
-        browser.find_element(*AdminPanelPage.DELETE).click()
-        alert = browser.switch_to.alert
-        alert.accept()
-        wait = WebDriverWait(browser, 10, poll_frequency=1)
-        message = wait.until(EC.visibility_of_element_located(AdminPanelPage.DELETE_OK))
-        assert message.text == "Success: You have modified customers!\n×"
 
-    @pytest.mark.parametrize('name', [0, 'a', "a" * 32, "lat"], ids=["ноль", "один символ", "32 символов", "латиница"])
+    def test_register(self, browser):
+        register_account = RegisterAccountPage(browser)
+        main_page = MainPage(browser)
+        admin_panel = AdminPanelPage(browser)
+        allert_delete = AlertsMessages(browser)
+        main_page.get_url("/")
+        main_page.find_user()
+        new_person = RegistrData.random()
+        register_account.fill_fields(new_person)
+        main_page.get_url("/admin/")
+        admin_panel.log_in()
+        admin_panel.delete_user(new_person)
+        allert_delete.alert_window()
+        admin_panel.assert_delete_user()
+
+    @pytest.mark.parametrize('name', ['a', "a" * 32, "lat"], ids=["один символ", "32 символов", "латиница"])
     def test_register_name(self, browser, name):
-        browser.get(browser.base_url)
+        main_page = MainPage(browser)
+        admin_panel = AdminPanelPage(browser)
+        allert_delete = AlertsMessages(browser)
+        register_account = RegisterAccountPage(browser)
+        main_page.get_url("/")
         data = RegistrData.random()
-        browser.find_element(*MainPage.MY_ACCOUNT).click()
-        browser.find_element(*MainPage.REGISTER).click()
-        browser.find_element(*RegisterAccountPage.FIRSTNAME).send_keys(name)
-        browser.find_element(*RegisterAccountPage.LASTNAME).send_keys(data.lastname)
-        browser.find_element(*RegisterAccountPage.EMAIL).send_keys(data.email)
-        browser.find_element(*RegisterAccountPage.TELEPHONE).send_keys("телефон")
-        browser.find_element(*RegisterAccountPage.PASSWORD).send_keys(data.password)
-        browser.find_element(*RegisterAccountPage.PASSWORD_CONFIRM).send_keys(data.password)
-        browser.find_element(*RegisterAccountPage.BOX_AGREE).click()
-        browser.find_element(*RegisterAccountPage.CONTINUE).click()
-        assert browser.find_element(*RegisterAccountPage.GOOD_REGISTER).text == "Your Account Has Been Created!"
-        browser.get(browser.base_url + "/admin/")
-        browser.find_element(*AdminPanelPage.USER_NAME).send_keys("user")
-        browser.find_element(*AdminPanelPage.PASSVORD).send_keys("bitnami")
-        browser.find_element(*AdminPanelPage.LOG_IN).click()
-        browser.find_element(*AdminPanelPage.CUSTOMERS).click()
-        browser.find_element(*AdminPanelPage.CUSTOMERS_1).click()
-        browser.find_element(AdminPanelPage.BOX[0], AdminPanelPage.BOX[1].format(f"{name} {data.lastname}")).click()
-        browser.find_element(*AdminPanelPage.DELETE).click()
-        alert = browser.switch_to.alert
-        alert.accept()
-        wait = WebDriverWait(browser, 10, poll_frequency=1)
-        message = wait.until(EC.visibility_of_element_located(AdminPanelPage.DELETE_OK))
-        assert message.text == "Success: You have modified customers!\n×"
+        data.name = name
+        main_page.find_user()
+        register_account._send_keys(element=register_account._find_element(register_account.FIRSTNAME), text=name)
+
+        register_account._send_keys(element=register_account._find_element(register_account.LASTNAME),
+                                    text=data.lastname)
+        register_account._send_keys(element=register_account._find_element(register_account.EMAIL), text=data.email)
+        register_account._send_keys(element=register_account._find_element(register_account.TELEPHONE),
+                                    text=data.telephone)
+        register_account._send_keys(element=register_account._find_element(register_account.PASSWORD),
+                                    text=data.password)
+        register_account._send_keys(element=register_account._find_element(register_account.PASSWORD_CONFIRM),
+                                    text=data.password)
+        register_account._find_element(register_account.BOX_AGREE).click()
+        register_account._find_element(register_account.CONTINUE).click()
+        assert register_account._find_element(
+            register_account.GOOD_REGISTER).text == "Your Account Has Been Created!"
+        main_page.get_url("/admin/")
+        admin_panel.log_in()
+        admin_panel.delete_user(data)
+        allert_delete.alert_window()
+        admin_panel.assert_delete_user()
 
 
 class TestRegistrNegative:
@@ -86,38 +75,51 @@ class TestRegistrNegative:
 
     @pytest.mark.parametrize("data", data_with_one_empty_param)
     def test_register_one_empty_param(self, browser, data):
-        browser.get(browser.base_url)
-        browser.find_element(*MainPage.MY_ACCOUNT).click()
-        browser.find_element(*MainPage.REGISTER).click()
+        main_page = MainPage(browser)
+        register_account = RegisterAccountPage(browser)
+        main_page.get_url("/")
+        main_page.find_user()
         if "firstName" in data:
-            browser.find_element(*RegisterAccountPage.FIRSTNAME).send_keys(data["firstName"])
+            register_account._send_keys(element=register_account._find_element(register_account.FIRSTNAME),
+                                        text=data["firstName"])
         if "lastName" in data:
-            browser.find_element(*RegisterAccountPage.LASTNAME).send_keys(data["lastName"])
+            register_account._send_keys(element=register_account._find_element(register_account.LASTNAME),
+                                        text=data["lastName"])
         if "email" in data:
-            browser.find_element(*RegisterAccountPage.EMAIL).send_keys(data["email"])
+            register_account._send_keys(element=register_account._find_element(register_account.EMAIL),
+                                        text=data["email"])
         if "telephone" in data:
-            browser.find_element(*RegisterAccountPage.TELEPHONE).send_keys(data["telephone"])
+            register_account._send_keys(element=register_account._find_element(register_account.TELEPHONE),
+                                        text=data["telephone"])
         if "password" in data:
-            browser.find_element(*RegisterAccountPage.PASSWORD).send_keys(data["password"])
+            register_account._send_keys(element=register_account._find_element(register_account.PASSWORD),
+                                        text=data["password"])
         if "password_confirm" in data:
-            browser.find_element(*RegisterAccountPage.PASSWORD_CONFIRM).send_keys(data["password_confirm"])
-        browser.find_element(*RegisterAccountPage.BOX_AGREE).click()
-        browser.find_element(*RegisterAccountPage.CONTINUE).click()
-        assert browser.find_element(RegisterAccountPage.ASSERT_TEXT[0],
-                                    RegisterAccountPage.ASSERT_TEXT[1].format(data["assert"])).is_displayed()
+            register_account._send_keys(element=register_account._find_element(register_account.PASSWORD_CONFIRM),
+                                        text=data["password_confirm"])
+        register_account._find_element(register_account.BOX_AGREE).click()
+        register_account._find_element(register_account.CONTINUE).click()
+        assert register_account._find_element((register_account.ASSERT_TEXT[0],
+                                               register_account.ASSERT_TEXT[1].format(data["assert"]))).is_displayed()
 
     def test_register_password_not_equals_confirm_password(self, browser):
-        browser.get(browser.base_url)
-        browser.find_element(*MainPage.MY_ACCOUNT).click()
-        browser.find_element(*MainPage.REGISTER).click()
-        browser.find_element(*RegisterAccountPage.FIRSTNAME).send_keys("Имя")
-        browser.find_element(*RegisterAccountPage.LASTNAME).send_keys("Фамилия")
-        browser.find_element(*RegisterAccountPage.EMAIL).send_keys("kgkg@имq1qя.попййцe")
-        browser.find_element(*RegisterAccountPage.TELEPHONE).send_keys("телефон")
-        browser.find_element(*RegisterAccountPage.PASSWORD).send_keys("пароль123")
-        browser.find_element(*RegisterAccountPage.PASSWORD_CONFIRM).send_keys("пароль1235")
-        browser.find_element(*RegisterAccountPage.BOX_AGREE).click()
-        browser.find_element(*RegisterAccountPage.CONTINUE).click()
-        assert browser.find_element(RegisterAccountPage.ASSERT_TEXT[0],
-                                    RegisterAccountPage.ASSERT_TEXT[1].format(
-                                        'Password confirmation does not match password!')).is_displayed()
+        main_page = MainPage(browser)
+        register_account = RegisterAccountPage(browser)
+        data = RegistrData.random()
+        main_page.get_url("/")
+        main_page.find_user()
+        register_account._send_keys(element=register_account._find_element(register_account.FIRSTNAME), text=data.name)
+        register_account._send_keys(element=register_account._find_element(register_account.LASTNAME),
+                                    text=data.lastname)
+        register_account._send_keys(element=register_account._find_element(register_account.EMAIL), text=data.email)
+        register_account._send_keys(element=register_account._find_element(register_account.TELEPHONE),
+                                    text=data.telephone)
+        register_account._send_keys(element=register_account._find_element(register_account.PASSWORD),
+                                    text=data.password)
+        register_account._send_keys(element=register_account._find_element(register_account.PASSWORD_CONFIRM),
+                                    text="пароль1235")
+        register_account._find_element(register_account.BOX_AGREE).click()
+        register_account._find_element(register_account.CONTINUE).click()
+        assert register_account._find_element((register_account.ASSERT_TEXT[0],
+                                               register_account.ASSERT_TEXT[1].format(
+                                                   'Password confirmation does not match password!'))).is_displayed()
