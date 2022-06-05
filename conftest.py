@@ -1,3 +1,6 @@
+import logging
+import datetime
+
 import pytest
 import os
 
@@ -14,6 +17,7 @@ from pages.elements.alerts import AlertsMessages
 from pages.main_page import MainPage
 from pages.register_account_page import RegisterAccountPage
 
+logger = logging.getLogger("test")
 
 def pytest_addoption(parser):
     parser.addoption("--browser", default="chrome")
@@ -26,6 +30,11 @@ def browser(request):
     browser = request.config.getoption("--browser")
     drivers = request.config.getoption("--drivers")
     base_url = request.config.getoption("--url")
+
+    file_handler = logging.FileHandler(f"logs/{request.node.name}.log")
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    logger.info("===> Test {} started at {}".format(request.node.name, datetime.datetime.now()))
 
     if browser == "chrome":
         service = Service(executable_path=os.path.join(drivers, "chromedriver"))
