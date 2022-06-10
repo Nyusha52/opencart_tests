@@ -1,6 +1,7 @@
 import logging
 import random
 
+from allure_commons._allure import step
 from selenium.webdriver.common.by import By
 
 from pages.base_page import BasePage
@@ -17,32 +18,38 @@ class MainPage(BasePage):
     POUND_STERLING = (By.CSS_SELECTOR, '[name="GBP"]')
     PRICE_TAX = (By.CSS_SELECTOR, '.price-tax')
 
+    @step("find user")
     def find_user(self):
         logger.info(f"===> find user")
         self._find_element(self.MY_ACCOUNT).click()
         self._find_element(self.REGISTER).click()
 
+    @step("logout user")
     def logout_user(self):
         logger.info(f"===> ogout user")
         self._find_element(self.MY_ACCOUNT).click()
         self._find_element(self.LOGOUT).click()
 
+    @step("start login user")
     def start_login_user(self):
         logger.info(f"===> start login user")
         self._find_element(self.MY_ACCOUNT).click()
         self._find_element(self.LOGIN).click()
 
+    @step("click good")
     def click_good(self):
         logger.info(f"===> click good")
         goods = self.list_elements(self.ADD_CART)
         assert len(goods) == 4
         goods[random.randint(0, 1)].click()
 
+    @step("change currency")
     def change_currency(self):
         logger.info(f"===> change currency")
         self._find_element(self.CURRENCY).click()
         self._find_clickable_element(self.POUND_STERLING).click()
 
+    @step("assert change currency")
     def assert_change_currency(self):
         logger.info(f"===> assert change currency")
         currency = self.list_elements(self.PRICE_TAX)
