@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 
 from pages.base_page import BasePage
+logger = logging.getLogger("test")
 
 
 class RegisterAccountPage(BasePage):
@@ -16,6 +17,7 @@ class RegisterAccountPage(BasePage):
     ASSERT_TEXT = (By.XPATH, '//*[text()="{}"]')
 
     def fill_fields(self, new_person):
+        logger.info(f"===> fill_fields")
         firstname = self._find_element(self.FIRSTNAME)
         self._send_keys(element=firstname, text=new_person.name)
         lastname = self._find_element(self.LASTNAME)

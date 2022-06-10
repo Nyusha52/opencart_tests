@@ -1,6 +1,8 @@
+import logging
+
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+logger = logging.getLogger("test")
 
 class BasePage:
 
@@ -25,13 +27,16 @@ class BasePage:
         element.clear()
         if text:
             element.send_keys(text)
+            logger.info(f"===> send text {text}")
             return element
 
     def get_text(self, element):
         text = element.text
+        logger.info(f"===> get text {text}")
         return text
 
     def get_url(self, uri=None):
+        logger.info(f"===> open {self.browser.base_url + uri} page")
         self.browser.get(self.browser.base_url + uri)
 
     def list_elements(self, locator):

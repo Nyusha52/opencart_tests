@@ -1,5 +1,4 @@
 from pages.admin.admin_panel_page import AdminPanelPage
-from pages.admin.admin_products_page import AdminProductPage
 
 
 class TestAdminPage:

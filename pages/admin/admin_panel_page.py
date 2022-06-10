@@ -23,7 +23,7 @@ class AdminPanelPage(BasePage):
 
     def delete_user(self, new_person):
         self._find_element(self.CUSTOMERS).click()
-        self._find_element(self.CUSTOMERS_1).click()
+        self._find_clickable_element(self.CUSTOMERS_1).click()
         self._find_element((self.BOX[0], self.BOX[1].format(f"{new_person.name} {new_person.lastname}"))).click()
         self._find_element(self.DELETE).click()
 

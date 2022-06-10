@@ -1,4 +1,8 @@
+import logging
+
 from pages.product_card_page import ProductCardPage
+
+logger = logging.getLogger("test")
 
 
 class TestProductCardPage:
@@ -10,6 +14,7 @@ class TestProductCardPage:
         product_card._send_keys(element=product_card._find_element(locator=ProductCardPage.QUANTITY), text='5')
         product_card._find_element(locator=ProductCardPage.ADD_CART).click()
         summa = product_card._find_element(locator=ProductCardPage.PRICE).text[1:]
+        logger.info(f"5 item(s) - ${float(summa) * 5:.2f}")
         assert product_card._find_element(
             locator=ProductCardPage.CART_BUTTON).text == f"5 item(s) - ${float(summa) * 5:.2f}"
 
@@ -21,5 +26,6 @@ class TestProductCardPage:
         product_card._send_keys(element=product_card._find_element(locator=ProductCardPage.QUANTITY), text='5')
         product_card._find_element(locator=ProductCardPage.ADD_CART).click()
         summa = product_card._find_element(locator=ProductCardPage.PRICE).text[1:]
+        logger.info(f"5 item(s) - ${float(summa) * 6:.2f}")
         assert product_card._find_element(
             locator=ProductCardPage.CART_BUTTON).text == f"5 item(s) - ${float(summa) * 6:.2f}"

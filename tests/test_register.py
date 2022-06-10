@@ -7,7 +7,7 @@ from pages.admin.admin_panel_page import AdminPanelPage
 from pages.elements.alerts import AlertsMessages
 from pages.main_page import MainPage
 from pages.register_account_page import RegisterAccountPage
-logger = logging.getLogger("test")
+
 
 
 class TestRegistrPozitive:
@@ -17,7 +17,7 @@ class TestRegistrPozitive:
         main_page = MainPage(browser)
         admin_panel = AdminPanelPage(browser)
         allert_delete = AlertsMessages(browser)
-        logger.info("===> open main page")
+
         main_page.get_url("/")
         main_page.find_user()
         new_person = RegistrData.random()
