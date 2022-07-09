@@ -16,8 +16,8 @@ class RegistrData:
 
     @staticmethod
     def random():
-        name = fake.name()
-        lastname = fake.name()
+        name = fake.first_name()
+        lastname = fake.last_name()
         email = fake.email()
         password = f"ANrb{random.randint(0, 1000)}"
         telephone = fake.random.randint(5550, 100000000)

@@ -1,3 +1,4 @@
+import logging
 
 import pytest
 
@@ -8,6 +9,7 @@ from pages.main_page import MainPage
 from pages.register_account_page import RegisterAccountPage
 
 
+
 class TestRegistrPozitive:
 
     def test_register(self, browser):
@@ -15,6 +17,7 @@ class TestRegistrPozitive:
         main_page = MainPage(browser)
         admin_panel = AdminPanelPage(browser)
         allert_delete = AlertsMessages(browser)
+
         main_page.get_url("/")
         main_page.find_user()
         new_person = RegistrData.random()
