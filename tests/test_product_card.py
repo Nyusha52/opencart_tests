@@ -28,4 +28,4 @@ class TestProductCardPage:
         summa = product_card._find_element(locator=ProductCardPage.PRICE).text[1:]
         logger.info(f"5 item(s) - ${float(summa) * 5:.2f}")
         assert product_card._find_element(
-            locator=ProductCardPage.CART_BUTTON).text == f"5 item(s) - ${float(summa) * 6:.2f}"
+            locator=ProductCardPage.CART_BUTTON).text == f"5 item(s) - ${float(summa) * 5:.2f}"
