@@ -8,3 +8,5 @@ class ProductCardPage(BasePage):
     CART_BUTTON = (By.CSS_SELECTOR, "#cart")
     ADD_CART_MESSAGE = (By.CSS_SELECTOR, ".alert.alert-success.alert-dismissible")
     PRICE = (By.CSS_SELECTOR, ".list-unstyled h2")
+    DELETE_PRODUCT = (By.XPATH, '//*[@data-original-title="Remove"]')
+    EMPTY = (By.XPATH, "//div[@id='content']/p[contains(text(),'Your shopping cart is empty!')]")

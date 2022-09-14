@@ -5,7 +5,9 @@ from allure_commons._allure import step
 from selenium.webdriver.common.by import By
 
 from pages.base_page import BasePage
+
 logger = logging.getLogger("test")
+
 
 class MainPage(BasePage):
     MY_ACCOUNT = (By.CSS_SELECTOR, "a[title='My Account']")
@@ -17,6 +19,9 @@ class MainPage(BasePage):
     CURRENCY = (By.CSS_SELECTOR, ".btn.btn-link.dropdown-toggle")
     POUND_STERLING = (By.CSS_SELECTOR, '[name="GBP"]')
     PRICE_TAX = (By.CSS_SELECTOR, '.price-tax')
+    WISH_LIST = (By.XPATH, "//*[@data-original-title='Add to Wish List']")
+    WISH_LIST_TOTAL = (By.XPATH, "//*[@id='wishlist-total']")
+
 
     @step("find user")
     def find_user(self):
@@ -54,3 +59,10 @@ class MainPage(BasePage):
         logger.info(f"===> assert change currency")
         currency = self.list_elements(self.PRICE_TAX)
         return currency
+
+    @step("click good")
+    def click_good_wish_list(self):
+        logger.info(f"===> click good")
+        goods = self.list_elements(self.ADD_CART)
+        assert len(goods) == 4
+        goods[random.randint(0, 1)].click()

@@ -4,6 +4,7 @@ from allure_commons._allure import step
 from selenium.webdriver.common.by import By
 
 from pages.base_page import BasePage
+
 logger = logging.getLogger("test")
 
 
@@ -19,6 +20,17 @@ class AdminPanelPage(BasePage):
     LOGIN_OK = (By.CSS_SELECTOR, "h1")
     CATALOG = (By.CSS_SELECTOR, "#menu-catalog")
     PRODUCT = (By.XPATH, "//a[text()='Products']")
+    PANEL_HEADING = (By.CLASS_NAME, "panel-heading")
+    USERNAME_INPUT = (By.ID, "input-username")
+    PASSWORD_INPUT = (By.ID, "input-password")
+    LOGIN_BUTTON = (By.CSS_SELECTOR, "button.btn.btn-primary")
+    HELP_BLOCK = (By.CLASS_NAME, "help-block")
+    NEED_LOGIN_TEXT = (By.XPATH, "//h1[contains(text(), 'enter your login')]")
+    LOGOUT_BUTTON = (By.CSS_SELECTOR, ".nav > li:nth-child(2) > a")
+    LEFT_MENU_CATALOGUE = (By.CSS_SELECTOR, "#menu-catalog > a")
+    LEFT_MENU_PRODUCTS = (By.CSS_SELECTOR, "#collapse1 > li:nth-child(2) > a")
+    PRODUCTS_TABLE = (By.CSS_SELECTOR, ".table-responsive")
+    FAIL_LOGIN_ALERT = (By.CSS_SELECTOR, '.alert-danger')
 
     @step("login")
     def log_in(self):
@@ -32,13 +44,15 @@ class AdminPanelPage(BasePage):
         logger.info(f"===> login {new_person.name} {new_person.lastname}")
         self._find_element(self.CUSTOMERS).click()
         self._find_clickable_element(self.CUSTOMERS_1).click()
-        self._find_element((self.BOX[0], self.BOX[1].format(f"{new_person.name} {new_person.lastname}"))).click()
+        self._find_element(
+            (self.BOX[0], self.BOX[1].format(f"{new_person.name} {new_person.lastname}"))).click()
         self._find_element(self.DELETE).click()
 
     @step("assert_delete_user")
     def assert_delete_user(self):
         logger.info(f"===> assert delete user")
-        assert self._find_element(self.DELETE_OK).text == "Success: You have modified customers!\n×"
+        assert self._find_element(
+            self.DELETE_OK).text == "Success: You have modified customers!\n×"
 
     @step("open_product_page")
     def open_product_page(self):
