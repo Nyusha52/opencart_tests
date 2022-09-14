@@ -1,4 +1,5 @@
 import logging
+
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -42,3 +43,10 @@ class BasePage:
 
     def list_elements(self, locator):
         return self.browser.find_elements(*locator)
+
+    def is_element_visible(self, locator: tuple, wait_time=15):
+        element_visible = WebDriverWait(self.browser, wait_time).until(
+            EC.invisibility_of_element_located(locator),
+            message=f"Can't find element by locator {locator[1]}",
+        )
+        return element_visible

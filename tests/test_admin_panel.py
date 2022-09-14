@@ -8,3 +8,5 @@ class TestAdminPage:
         admin_panel.get_url_admin()
         admin_panel.log_in()
         assert admin_panel._find_element(admin_panel.LOGIN_OK).text == "Dashboard"
+
+
